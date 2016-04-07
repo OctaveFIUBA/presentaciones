@@ -1,0 +1,499 @@
+\section{Trabajando con matrices}
+
+\begin{frame}{Matrices y Vectores}  %%%% Matrices y vectores
+  El tipo de datos básico en Octave son las matrices. Los escalares son un caso particular de matrices de $1\times 1$ y los vectores lo son en el caso de $1\times n$ o $n \times 1$.
+  
+  Muchas de las funciones que se usan para números reales funcionan sobre vectores y matrices también.
+\end{frame}
+
+\begin{frame}[fragile]{Definiendo matrices}
+  Para definir una matriz, se utilizan los \emph{corchetes}: \verb![]!, las columnas se separan con \emph{espacio} o \verb!,! y las filas se separan con una \emph{nueva línea} (un ``enter'') o un \verb!;!
+
+  Por ejemplo, la matriz:
+  \begin{align*}
+	  \mathbf{A} &= \left [ 
+		  \begin{matrix}
+			  1 & 2\\
+			  3 & 4
+		  \end{matrix}
+	  \right]
+  \end{align*}
+
+  Se escribe en Octave como:
+
+  \begin{lstlisting}
+  > A = [1 2; 3 4]
+  \end{lstlisting}
+  
+  O bien, usando un salto de línea en lugar del punto y coma:
+  \begin{lstlisting}
+  > A = [1 2
+         3 4]
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Vectores}
+  Y para el caso de vectores es lo mismo:
+  \begin{align*}
+      \mathbf{v} = \left[ \begin{matrix} 1 & 1 & 2\end{matrix} \right]
+  \end{align*}
+
+  \begin{lstlisting}
+  > v = [1 1 2]
+  \end{lstlisting}
+
+  \begin{align*}
+      \mathbf{v} = \left[ \begin{matrix} 1 \\ 1 \\ 2\end{matrix} \right]
+  \end{align*}
+
+  \begin{lstlisting}
+  > v = [1; 1; 2]
+  \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Transpuesta y Transpuesta conjugada (hermítica)}
+	Para obtener la transpuesta hermítica de una matriz (o vector), se utiliza el operador \verb!'! (\emph{apóstrofo\footnote{Apóstrofe: Insulto que provoca y ofende.| Figura retórica que consiste en interrumpir el discurso para dirigirse con vehemencia a otra persona, generalmente con un tono patético o de lamento.} simple}).
+    
+    Para transponer una matriz (o vector) sin conjugar, se debe utilizar el operador \verb!.'!
+    
+    Ejemplo:
+\begin{lstlisting}
+> A = [1-1j 2; 3 4]
+> A_h = A'
+1 + 1j   3
+2        4
+> A_t = A.'
+1 - 1j   3
+2        4\end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]{¿Vectores filas o columna?}
+	A la mayoría de las funciones de Octave les da lo mismo si un vector es fila o columna, pero ¿cuándo usar uno u otro?
+    
+	Matemáticamente, estamos acostumbrados a los vectores columna (porque hacemos multiplicaciones matriciales de la forma $\mathbf{y} = \mathbf{A} \mathbf{x}$ y no $\mathbf{y} = \mathbf{x} \mathbf{A}$).
+    
+    Pero en Octave parece que es más cómodo --y usual-- tener vectores fila:
+\begin{lstlisting}
+> x = [1 -2 0 3]
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{¿Vectores filas o columnas?}
+	Pensemos en una tabla de valores donde se anota la evolución de distintas magnitudes en el tiempo: en cada columna hay distintas mediciones de un mismo dato. Ésta misma idea es en Octave: cada columna representa un distinto tipo de dato.
+    
+    Si tenemos un vector que registra --por ejemplo-- la caída de tensión en una resistencia en función del tiempo o la temperatura, debería ser un vector columna. Éste debería ir acompañado --seguramente-- por otro vector columna que indique los instantes de tiempo o valores de temperatura correspondientes a cada medición del primero.  
+\end{frame}
+
+\begin{frame}[fragile]{¿Vectores filas o columnas?}
+    Estos dos vectores columna pueden acomodarse cómodamente en una matriz, por ejemplo:
+\begin{lstlisting}
+mediciones = [1    1.23  % tiempo (seg), tensión (volt)
+              1.1  1.27
+              1.3  1.26
+              1.5  1.22
+              1.6  1.25
+              1.9  1.24
+              ];
+\end{lstlisting}
+\end{frame}
+\begin{frame}[fragile]{Truquito}
+	Esto puede ser cómodo para escribir \emph{vectores columna} largos, evitando el uso de muchos \verb!;! o saltos de líneas.
+\begin{lstlisting}
+> x = [1 1 3 -2 4 0 -2 -4 9 0.1 2 -4 -2 8].'
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Multiplicando matrices I}
+	Si las dimensiones de las matrices (o vectores) concuerdan, se pueden multiplicar usando el operador \verb!*!
+    
+Ejemplo:
+\begin{lstlisting}
+> A = [1 3 5; 2 1 -1];  % Una matriz de 2x3
+> b = [1 2 1].';        % Esto es un vector fila de 3x1
+> A*b
+12
+3
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Multiplicando matrices I}
+De la misma forma, podemos hacer potencias de matrices cuadradas, con la definición de $\mathbf{A}^n = \underbrace{\mathbf{A} \mathbf{A} \mathbf{A} \cdots \mathbf{A}}{n \text{veces}}$
+
+\begin{lstlisting}
+> A = [1 0 1; 0 1 0; 1 1 1];
+> A*A*A
+> A^3
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Operaciones elemento a elemento}
+Supongamos que medidmos la tensión sobre un resistor de $8\Omega$ y tenemos esa información en un vector columna \verb!V!. Queremos obtener la potencia disipada, dada por la ecuación $P=V^2/R$ ¿Cómo podemos hacer eso?
+
+Si realizamos la operación \verb!V^2! en Octave, devuelve error, ya que \verb!V! no es una matriz cuadrada. Pero en realidad, lo que queremos hacer es elevar \emph{cada componente} al cuadrado, y no al vector por así decirlo.
+\end{frame}
+
+\begin{frame}[fragile]{Operaciones elemento a elemento}
+Para indicarle a Octave que una operación debe realizarse elemento a elemento, se antepone un punto. Por ejemplo
+\begin{itemize}
+\item Multiplicación \verb!.*!
+\item División \verb!./!
+\item Potencia \verb!.^!
+\end{itemize}
+
+En nuestro caso, tendríamos que hacer:
+
+\begin{lstlisting}
+> V = [10.4 7.5 12.4 9.2 7.3].'; % Datos de ejemplo
+> R = 8;
+> P = V.^2 ./ R
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Operaciones elemento a elemento}
+Ejemplo 2: Supongamos que tenemos un vector con frecuencias angulares $\omega$, queremos convertir esos datos al período correspondiente $T$ según la ecuación
+$ T = 2\pi / \omega$, tenemos entonces:
+
+\begin{lstlisting}
+> w = [132.43 22.54 563.01].'; % Datos
+> T = 2*pi ./ w
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Broadcasting\footnote{Es algo como ``Ajuste automático de ancho'' en español.}}
+\begin{alertblock}{¡Esto no es MATLAB!}
+Ésta es una característica que MATLAB no poseé --y que seguramente no implementará por retrocompatibilidad-- así que hay que tener cuidado si se quiere interoperabilidad.
+\end{alertblock}
+
+Octave permite multiplicar matrices si sus dimesiones son \emph{parecidas} pero no compatibles formalmente. Por ejemplo, se puede multiplicar una matriz de $n\times 3$ por un vector de $1 \times 3$ o $3 \times 1$. Lo que hace es multiplicar cada columna por el valor que dice el vector.
+
+Ésta no es una funcionalidad sumamente empleada, pero tenía que contárselas. A veces es útil --depende de cuán loco esté cada uno--. Al menos para que sepan por qué a veces no explota algo que no tendría que funcionar.
+\end{frame}
+
+\begin{frame}[fragile]{Índices en matrices}
+Sea A una matriz de $n\times m$. Por ejemplo:
+
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+\end{lstlisting}
+
+Podemos obtener el elemento de la fila \verb!i! y columna \verb!j! ($1\le i\le n, \, 1\le j\le m$) de la forma \verb!A(i,j)!
+
+Ejemplo:
+\begin{lstlisting}
+> A(3,2)
+9
+\end{lstlisting}
+
+\begin{alertblock}{Los índices empiezan en 1}
+A diferencia de lenguajes como C o Java, los índices empiezan por 1 y deben ser positivos.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]{Índices en matrices - submatrices}
+Se puede extraer una submatriz especificando un \emph{rango} de valores, denotados por un \verb!:! de la forma \verb!inicio:fin!
+
+Ejemplo, sea:
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+\end{lstlisting}
+
+Luego:
+\begin{lstlisting}
+> A(1:2, 2:3)
+2  3
+0  1
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Índices en matrices - submatrices}
+Una forma cómoda para especificar que queremos todos los valores de filas o columnas es poner simplemente un \verb!:! en la dimensión que no queremos poner restricciones:
+
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+
+> A(:,2)
+2
+0
+9
+
+> A(1:2, :)
+ 1 2 3 4
+-1 0 1 0
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Índices en matrices - end}
+Muchas veces no tenemos en mente cual es el largo o ancho de una matriz, para ello, podemos valernos de la palabra reservada \verb!end!, que al verla Octave la convierte automáticamente por el tamaño de la dimensión en la cual se use.
+
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+> A(1, end)
+4
+> A(end-2, end-1)
+3
+> A(:, end-1)
+3
+1
+8
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Índices en matrices - end}
+La palabra \verb!end! se puede usar dentro de cualquier expresión, pero hay que tener cuidado que para que sea un índice válido, debe ser un entero. Por ejemplo
+
+\begin{lstlisting}
+> v = [-5 -4 -3 -2 -1 0 1 2 3].';
+
+> v(end/2) % end/2 da 4.5 y esto no anda
+> v( floor(end/2) ) % redondeamos para abajo
+-2
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Rangos}
+La funcionalidad de los dos puntos es generar un rango.
+
+Un rango es de la forma: \verb!inicio:paso:fin!
+O bien: \verb!inicio:fin! entendiéndose el paso igual a 1 en este caso.
+
+Por ejemplo:
+\begin{lstlisting}
+> 1:5
+1 2 3 4 5
+> 1:2:10
+1 3 5 7 9
+> 15:-1:10
+15 14 13 12 11 10
+\end{lstlisting}
+
+Como vemos, el paso puede ser positivo o negativo.
+
+\end{frame}
+
+\begin{frame}[fragile]{Rangos}
+Los rangos se pueden utilizar para crear vectores. Notemos que podemos usar numeros no enteros:
+
+Por ejemplo:
+\begin{lstlisting}
+> v = 1:0.1:1.5
+1 1.1 1.2 1.3 1.4 1.5
+
+> 2.*v
+2 2.2 2.4 2.6 2.8 3
+
+> 10.^v  % Útil para escalas exponenciales
+10.0000 12.5893 15.8489 19.9526 25.1189 31.6228
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Invirtiendo un vector}
+¿Cómo puedo hacer para ``dar vuelta'' un vector? Visto lo anterior es muy sencillo:
+
+\begin{lstlisting}
+> v = [0.1 0.2 0.3 0.4 0.5]; % Me cansé de los enteros
+> v_rev = v(end:-1:1)
+0.5 0.4 0.3 0.2 0.1
+\end{lstlisting}
+
+Y puedo obtener solo las coordenadas pares e impares:
+\begin{lstlisting}
+> x = [1 0 3 0 9 0 -10];
+> x_par = x(2:2:end)
+1 3 9 -10
+> x_impar = x(1:2:end)
+0 0 0
+\end{lstlisting}
+
+Para matrices es \emph{exactamente} igual. (Tarea: Jugar con ese caso).
+
+\end{frame}
+
+\begin{frame}[fragile]{Seguimos indexando}
+Podemos decir que un rango es un vector fila\footnote{Although a range constant specifies a row vector, Octave does not normally convert range constants to vectors unless it is necessary to do so. This allows you to write a constant like ‘1 : 10000’ without using 80,000 bytes of storage on a typical 32-bit workstation. --https://www.gnu.org/software/octave/doc/interpreter/Ranges.html}. De forma dual, podemos usar vectores para extraer sólo determinados indices:
+
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+        
+> A([1 3], 1:2)
+1 2
+3 9
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Seguimos indexando}
+Sea 
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+\end{lstlisting}
+
+¿Qué hace esto?
+\begin{lstlisting}
+> A([1 1 2 1], :)
+
+
+
+
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Seguimos indexando}
+Sea 
+\begin{lstlisting}
+> A = [ 1 2 3 4
+       -1 0 1 0
+        3 9 8 -1];
+\end{lstlisting}
+
+¿Qué hace esto?
+\begin{lstlisting}
+> A([1 1 2 1], :)  % Repite los elementos
+  1  2  3  4
+  1  2  3  4
+ -1  0  1  0
+  1  2  3  4 
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado\footnote{Ver: https://www.gnu.org/software/octave/doc/interpreter/Advanced-Indexing.html}}
+
+En lugar de un rango, se puede poner una condición. Por ejemplo:
+
+\begin{lstlisting}
+> v = [8.1 9.0 1.2 9.1 6.3 0.9 2.7];
+
+> v(v>3)
+8.1 9.0 9.1 6.3
+
+> v(v.^2 < 2*v)
+1.2 0.9
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado}
+Si disponemos de dos vectores del mismo largo, podemos usar uno como condición del otro. Ejemplo:
+
+\begin{lstlisting}
+> t = 0:0.1:10; % Un par de datos, cualquier cosa.
+> x = 10 - 3.*t;
+
+> x(t>9.5)
+-18.8  -19.1  -19.4  -19.7  -20.0
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado}
+Podemos usar más de una condición, empleando los operadores lógicos elemento a elemento\footnote{Los operadores \&\& y || operan sobre escalares y devuelven escalares}:
+
+\begin{description}
+\item[\&] Operador ``y'' lógico (\textit{and})
+\item[|] Operador ``o'' lógico (\textit{or})
+\item[\textasciitilde] Operador ``no'' lógico (\textit{not})
+\end{description}
+
+
+\begin{lstlisting}
+> t = 0:0.1:10; % Un par de datos, cualquier cosa.
+> x = 10 - 3.*t;
+
+> x( (t>2 & t<2.5) | t>9.7 )
+3.7 3.4 3.1 2.8 -19.4 -19.7 -20.0
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado}
+¿Y si quero saber qué rango de índices del vector \verb!t! son los que cumplen que $2.2<t<3$?
+
+Para eso existe el comando \verb!find()!. (Hacer \verb!help find! cualquie cosa)
+
+\begin{lstlisting}
+> t = 0:0.1:10; % Un par de datos, cualquier cosa.
+> x = 10 - 3.*t;
+
+> indices = find ( t>2.2 & t<3)
+24    25    26    27    28    29    30
+\end{lstlisting}
+
+Y ahora ya sabemos cuales son esos indices. Podemos ahora usar esos índices de esta forma:
+
+\begin{lstlisting}
+> indices = find ( t>2.2 & t<3)
+> x(indices)
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado}
+Si bien estas dos expresiones hacen lo mismo, la segunda es mucho más recomendable (menos costosa computacionalmente):
+
+\begin{lstlisting}
+> x( find ( t>2.2 & t<3) )  % No; mueren gatitos :(
+
+> x(  t>2.2 & t<3 )         % Sí :D
+\end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Técnicas avanzadas de indexado}
+En este caso, sirve tener los índices. Por ejemplo:
+
+Supongamos que tenemos esta curva plana, parametrizada en $t$. Queremos obtener los valores de $x$ y $t$ para los cuales $y<3$:
+
+\begin{lstlisting}
+> t = 0:0.1:10;
+> x = 10 - 3.*t;
+> y = 10*t - 0.5*t.^2;
+
+> indices = find(y<3);
+> x_principio = x(indices);
+> t_principio = t(indices);
+\end{lstlisting}
+
+Ah, para ver un gráfico podemos hacer: \verb!plot(x,y)!. Simplemente une los puntos (x,y) con rectas. \verb!x! e \verb!y! deben ser vectores de igual dimensión --fila o columna--.
+
+\end{frame}
+
+\begin{frame}{¿Qué sigue?}
+
+\begin{alertblock}{Próxima diapositiva}
+En la próxima diapositiva vamos a ver cómo definir funciones, realizar gráficos y trazar curvas en 2D y 3D y esas cosas divertidas como resolver ecuaciones diferenciales e integrar.
+\end{alertblock}
+
+\begin{alertblock}{¿Y después?}
+Nos vamos al pasto con \emph{cell arrays} y \emph{strings}; vamos a analizar datos automáticamente y hacer gráficos muy copados.
+\end{alertblock}
+
+A la misma batihora y por el mismo baticanal.
+
+\end{frame}
+
+\begin{frame}{¿Qué sigue?}
+
+\begin{alertblock}{Próxima diapositiva}
+En la próxima diapositiva vamos a ver cómo definir funciones, realizar gráficos y trazar curvas en 2D y 3D y esas cosas divertidas como resolver ecuaciones diferenciales e integrar.
+\end{alertblock}
+
+\end{frame}
+

@@ -1,0 +1,190 @@
+\section{Gráficos Bi-dimensonales}
+
+\begin{frame}[fragile]{Gráficos 2D plot()}
+
+La función \verb!plot()! se encarga de realizar gráficos en ejes cartesianos. Puede dibujar más de una curva en el mismo gráfico y permite modificar algunas propiedades de diseño como los colores y estilos de las líneas. \verb!plot()! puede tomar una cantidad de argumentos variable e interpreta a los vectores o matrices como datos de las curvas y a las cadenas de texto como las propiedades de diseño. La forma general de los argumentos de \verb!plot()! son de la forma siguiente.
+
+\begin{alertblock}{Función plot - argumentos}
+plot( x1 , y1 , 'propiedad1' , 'valor1' , 'propiedad2' , 'valor2' , x2 , y2 , 'propiedad3' , 'valor3' , ... ) 
+
+Cada valor hace referencia a la propiedad inmediatamente anterior, y cada propiedad modifica el par de datos x , y anterior.
+\end{alertblock}
+
+\end{frame}
+
+\begin{frame}[fragile]{Gráficos 2D plot()}
+
+Probemos algunos ejemplos para ver que hace:
+
+\begin{lstlisting}
+> t = 0:0.1:10; % Vector fila de 101 elementos.
+> x = 10 - 3.*t; % También fila de 101 elementos.
+
+> plot( x ); % Grafica los puntos ( i , x(i) )
+> plot ( t , x); % Grafica los puntos ( t(i) , x(i) )
+> plot (t , x , 'color' , 'r' , 'linestyle', ':')
+\end{lstlisting}
+
+El último gráfico modificó el color de la línea a rojo y la dibujó punteada. Las propiedades que se pueden modificar para cada curva son: ``linestyle'', ``linewidth'', ``color'', ``marker'', ``markersize'', ``markeredgecolor'', y ``markerfacecolor''.
+
+Para más info sobre las propiedades poner \verb!"help plot"! en la consola de Octave.
+\end{frame}
+
+\begin{frame}[fragile]{Gráficos 2D plot()}
+
+Por último, y porque sin etiquetas en los ejes y título del gráfico el TP rebota...
+
+\begin{lstlisting}
+> plot ( t , x);
+> title ( 'Título del gráfico');
+> xlabel ( 'Magnitud eje X y [unidades]');
+> ylabel ( 'Magnitud eje Y y [unidades]');
+> legend( 'Descripción de la curva')
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Graficando varias curvas juntas}
+Generalmente es necesario graficar distintas curvas superpuestas para compararlas. Hay muchas formas de hacer esto.
+
+Esta es la más elegante:
+\begin{lstlisting}
+> plot (t1, x1, t2, x2, t3, x3); % etc
+\end{lstlisting}
+
+Y podemos decorar cada curva de la forma:
+\begin{lstlisting}
+> plot (t1, x1, 'color', 'r', 'linewidth', 3, ...
+        t1, x1, 'color', 'b', 'linestyle', '--', ...
+        t3, x3, 'color', 'k', 'linestyle', ':' ); % etc
+\end{lstlisting}
+
+Nota: Con los tres puntos le decimos a Octave que el comando sigue en la próxima linea.
+\end{frame}
+
+\begin{frame}[fragile]{Graficando varias curvas juntas}
+Otra forma, un poco más \textst{enferma} rebuscada es pasar todos los datos de las absisas en una matriz, como columas o filas según sean compatibles las dimensiones.
+
+Por ejemplo:
+\begin{lstlisting}
+> t = linspace(0, 10, 100)';
+> x = [t, t.^2/10, t.^3/100, t.^4/1000];
+> plot (t, x);
+> legend ("Cuadrática", "Cúbica", "Cuarta");
+> xlabel ("t");
+> ylabel ("t^n / 10^n");
+\end{lstlisting}
+
+Esto puede ser útil cuando la matriz x la generamos automágicamente.
+\end{frame}
+
+\begin{frame}[fragile]{Graficando varias curvas juntas}
+La forma que se usa el 99\% de las veces es con el comando \verb$hold$.
+
+Con \verb$hold on$ le decimos a Octave que grafique una curva sobre la otra, sin borrar la anterior.
+
+\begin{lstlisting}
+> t = linspace(0, 10, 100)';
+> x = t.^2;
+> td = (0:10)';
+> xd = td.^2 + 2*randn(length(td), 1); % ruido
+> hold on;
+> plot (t, x, 'b');
+> plot (td, xd, 'or', 'markersize', 7);
+> legend ('Modelo', 'Mediciones');
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Usos y costumbres al plotear}
+El ``estándar de facto'' a la hora de hacer curvas es el siguiente:
+
+\begin{lstlisting}
+> close all; % cierro todos los plots
+> % bla bla bla
+> figure; % creo una nueva figura, abre una ventana
+> hold on;
+> plot (...); % realizo el primer plot
+> plot (...); % realizo los siguientes
+> legend (...);
+> xlabel (...); ylabel (...);
+> print ('-dpng' 'miplot'); % Guardo el plot
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Ejes (semi)logarítmicos}
+Si es necesario usar una escala logarítmica para alguno de los ejes (o ambos), es exactamente igual que antes, sólo que hay que usar \verb$semilogx()$, \verb$semilogy()$ o \verb$loglog()$ en lugar de \verb$plot()$.
+
+\begin{alertblock}{Bug al usar ejes logarítmicos y hold}
+En caso de querer usar \verb$hold on$ junto con ejes logarítmicos (o semi), primero es necesario plotear la primer curva y \emph{después} usar el comando \verb$hold on$. Caso contrario, \verb$hold on$ crea ejes lineales.
+\end{alertblock}
+
+Es decir:
+
+\begin{lstlisting}
+> figure; % creo una nueva figura, abre una ventana
+> semilogx (...); % primer plot
+> hold on;
+> semilogx (...); % realizo los siguientes
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Ejes dobles independientes}
+Si queremos graficar dos curvas con ejes independientes, podemos usar el comando \verb$plotyy()$. La sintaxis es:
+
+\begin{lstlisting}
+plotyy (x1, y1, x2, y2);
+plotyy (x1, y1, x2, y2, @TipoPlot1, @TipoPlot2);
+\end{lstlisting}
+
+En TipoPlot debemos poner alguna de las funciones de ploteo que ya conocimos (u otras). Esto es un "puntero a función". Ya lo veremos luego ;) pero básicamente le decimos a Octave con qué función debe graficar cada curva con sus respectivos ejes.
+\end{frame}
+
+\begin{frame}[fragile]{Ejes dobles independientes}
+Este ejemplo de la documentación de GNU Octave aclara los tantos:
+
+\begin{lstlisting}
+> x = 0:0.1:2*pi;
+> y1 = sin (x);
+> y2 = exp (x - 1);
+> ax = plotyy (x, y1, x - 1, y2, @plot, @semilogy);
+> xlabel ("X");
+> ylabel (ax(1), "Axis 1"); % Especifico el eje a rotular
+> ylabel (ax(2), "Axis 2");
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Más funciones de ploteo}
+Hay otras funciones, por ejemplo, para hacer histogramas (hist), gráficos discretos (stem), paretos (?), graficos polares, etc.
+
+Para más info, escribir: \verb$doc plot$ en consola.
+\end{frame}
+
+
+
+\section{Gráficos Tridimensonales}
+\begin{frame}[fragile]{Graficos en 3D}
+Em... no me emociona escribir sobre esto ¿quién usa estas cosas? :P
+
+Ya con lo que vimos, debe ser trivial leer lo de \verb$doc plot3$.
+
+Si no, este enlace: \url{https://www.gnu.org/software/octave/doc/interpreter/Three_002dDimensional-Plots.html}
+\end{frame}
+
+\section{Tarea integradora}
+\begin{frame}[fragile]{Tarea propuesta}
+Supongamos que queremos "emular"\footnote{Eufemismo para dibujar.} un TP de Físca I. Tenemos un sistema físico, real (un péndulo, un resorte, etc), sobre el cual realizamos mediciones (con cierta incerteza) y un modelo matemático (como la ley de Hooke).
+
+En base a las mediciones obtenidas podemos caracterizar el sistema que medimos (en español: obtener el valor de k del resorte).
+\end{frame}
+
+\begin{frame}[fragile]{Tarea propuesta}
+Proponemos:
+
+\begin{itemize}
+\item Elegir un sistema físico (resorte, péndulo, resonador cuántico, etc).
+\item Dado algún modelo matemático, trazar curvas de alguna magnitud medible (estiramiento vs fuerza, por ejemplo).
+\item Simular que realizamos mediciones para levantar dicha curva. Esto es: Dados puntos determinados en las absisas, obtener las ordenadas. Para simular la incerteza de medición, añadir ruido gaussiano con \verb$randn()$ o uniforme con \verb$rand()$.
+\item Ajustar por mínimos cuadrados para obtener los parámetros del sistema (ejemplo, la k) dadas las mediciones con incerteza. Usar \verb$fit()$ \textst{(o hacer lo de la pseudoinversa de Moore-Penrose)}.
+\item Comparar la curva ideal con la curva ajustada.
+\end{itemize}
+\end{frame}

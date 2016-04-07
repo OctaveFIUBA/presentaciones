@@ -1,0 +1,46 @@
+\documentclass[10pt]{beamer}
+
+\usetheme[progressbar=frametitle]{metropolis}
+
+\usepackage{booktabs}
+\usepackage{soul} % Para tachar
+\usepackage[scale=2]{ccicons}
+
+\usepackage{listings} % Código fuente
+\lstset{
+	language=Octave,
+    showstringspaces=false}
+
+\usepackage{hyperref} % Links
+
+\usepackage{pgfplots}
+\usepgfplotslibrary{dateplot}
+
+\usepackage{xspace}
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+\title{Octave a lo FIUBA}
+\subtitle{Curso rápido de GNU Octave - Parte 1}
+\date{\today}
+\author{Losotro'}
+\institute{FIUBA}
+\titlegraphic{\hfill\includegraphics[height=1.5cm]{logo}}
+
+\begin{document}
+\metroset{block=fill}
+\maketitle
+
+\begin{frame}{Temario}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+
+\include{intro}
+%\include{instalacion}
+\include{calculadora}
+\include{matrices}
+\include{graficos}
+
+
+\end{document}

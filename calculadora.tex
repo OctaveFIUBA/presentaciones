@@ -1,0 +1,163 @@
+\section{Octave como calculadora}
+
+%%%% Calculos simples
+
+\begin{frame}{Calculadora simple}
+	Octave puede usarse como calculadora. Simplemente podemos escribir operaciones matemáticas y ver la respuesta.
+\end{frame}
+
+\begin{frame}{Calculadora simple}
+  Octave puede usarse como calculadora. Simplemente podemos escribir operaciones matemáticas y ver la respuesta.
+{
+\metroset{block=fill}
+  \begin{alertblock}{Notación}
+    Las lineas que comienzan con  denotan los comandos que \emph{nosotros} escribimos en el programa, las otras son la respuesta que devuelve.
+    
+    Lo que sigue a un símbolo \% es un comentario.
+  \end{alertblock}
+}
+\end{frame}
+
+\begin{frame}[fragile]{Probemos esto} % Si no pongo [fragile] explota todo con listings
+\begin{lstlisting}
+> 3+2
+5
+> 3*5+1.1  % El separador decimal es el .
+11.1
+> sqrt(16) % sqrt es abreviatura de SQuare RooT
+4
+> i^2
+-1
+> (1+3i)*(2-3i/2)
+> 1/2i
+\end{lstlisting}
+\end{frame}
+
+%%%% Complejos
+\begin{frame}[fragile]{Numeros complejos}
+  Octave maneja cómodamente números complejos. La unidad imaginaria es indistintamente \verb!i! o bien \verb!j! (esta última notación se usa mucho por los electricistas y electrónicos, los matemáticos parecen preferir la primera).
+
+  \begin{alertblock}{Buenas prácticas}
+    Por desgracia, \verb!i! y \verb!j! son comúnmente usadas como nombres de variables. Para evitar problemas, siempre ponga un número adelante de la unidad imaginaria.
+    Es decir, en lugar de:
+    \begin{verbatim}    > 1+i\end{verbatim}
+    
+    Escriba:
+    \begin{verbatim}    > 1+1i\end{verbatim}
+  \end{alertblock}
+
+\end{frame}
+\begin{frame}[fragile]{Forma Binómica y polar} % Si no pongo [fragile] explota todo con listings
+Para obtener la parte real e imaginaria, y el módulo y ángulo de un complejo, tenemos estas funciones:
+\begin{lstlisting}
+> real(1-2i)
+1
+> imag(1-2i)
+-2
+> abs(1-2i)
+> angle(1-2i)
+> conj(1-2i)
+1+2i
+\end{lstlisting}
+\end{frame}
+
+
+%%%% VARIABLES
+\begin{frame}[fragile]{Usando variables}
+  Una necesidad básica es guardar la información para volver a usarla después, como las memorias de las calculadoras. En Octave podemos hacer eso usando \emph{variables}.
+
+  \begin{alertblock}{Variables}
+    Para \emph{asignar} un valor a una variable, use el operador \verb!=!
+    
+    Ejemplo: \verb!a=3! define una variable a y le asigna el valor numérico tres.
+  \end{alertblock}
+
+\end{frame}
+\begin{frame}[fragile]{Probemos esto} % Si no pongo [fragile] explota todo con listings
+\begin{lstlisting}
+> a = 3*7 + 2 - 7^2
+> 3*a + 17
+> 3a + 17 % Esto no funciona, falta el simbolo de por
+> c = 2*a + 3
+> d = 1000*a;  % El ; hace que no diga el resultado
+> d  % Para mostrar el valor de una variable
+> disp(d)  % Esto hace lo mismo per es más elegante (?)
+\end{lstlisting}
+\end{frame}
+
+
+%%%% FUNCIONES
+\begin{frame}[fragile]{Funciones Básicas}
+  GNU Octave posee un conjunto de funciones y operaciones matemáticas básicas ya implementadas. Pueden descargarse más desde OctaveForge\footnote{Visitar {http://octave.sourceforge.net/}}. Algunas son:
+  
+    \begin{columns}[T,onlytextwidth]
+    \column{0.25\textwidth}
+      Redondeo
+      \begin{itemize}
+        \item floor() \item ceil() \item round()
+      \end{itemize}
+
+    \column{0.25\textwidth}
+      Trigonometría
+      \begin{itemize}
+        \item sin() \item sind() \item cos() \item tanh()
+      \end{itemize}
+
+    \column{0.25\textwidth}
+      Complejos
+      \begin{itemize}
+        \item abs() \item angle() \item real() \item imag()
+      \end{itemize}
+    \column{0.25\textwidth}
+      Logaritmos
+      \begin{itemize}
+        \item log() \item log10() \item log2() \item exp()
+      \end{itemize}
+  \end{columns}
+
+  Para saber qué hacen use el comando help o el comando doc seguido del nombre de la función. Por ejemplo: \verb!help sind! o \verb!doc angle!. Si no, Googleé :)
+
+\end{frame}
+
+\begin{frame}[fragile]{Probemos esto} % Si no pongo [fragile] explota todo con listings
+\begin{lstlisting}
+> abs(-3)
+> abs(1+1i)+100*angle(1+1i)
+> exp(2-3j)
+> sin(1+2j)
+> exp(2)*( cos(-3) + 1i*sin(-3) )
+> sin(pi)
+\end{lstlisting}
+	Notemos esta pequeña diferencia:
+\begin{lstlisting}
+> sin(pi)
+> sind(180)
+\end{lstlisting}
+	Las funciones trigonométricas vienen por defecto en radianes; \verb!sind!, \verb!cosd! y \verb!tand! usan grados sexagesimales.
+
+\end{frame}
+
+\begin{frame}[fragile]{Probemos esto} % Si no pongo [fragile] explota todo con listings
+	Ahora vamos a calcular el seno de 30 grados pasando primero a mano a radianes y usando luego \verb!sin()!. Vamos a usar variables para la claridad y reutilizabilidad del código.
+\begin{lstlisting}
+> angulo_grados = 30;
+> angulo_radianes = angulo_grados * pi / 180;
+> sin(angulo_radianes)
+\end{lstlisting}
+	Y vemos que da lo mismo que
+\begin{lstlisting}
+> sind(angulo_grados)
+\end{lstlisting}
+
+\end{frame}
+
+\begin{frame}[fragile]{Sobre los nombres de variables}
+	\begin{alertblock}{Use nombres descriptivos}
+	Tenga en cuenta que alguien más va a querer leer su código. Haga que sea lo más claro y entendible posible; sepa que aún esa persona puede ser usted mismo en el futuro ;)
+	
+	Evite abreviaciones y use siempre un mismo estilo (por ejemplo, \verb!separar_con_guiones! o \verb!separarConMayusculas!). Elija español o inglés y \emph{sea consistente} en lo posible.
+	
+	Es preferible (generalmente) separar las ecuaciones complicadas en varias partes en lugar de tener expresiones kilométricas inentendibles
+	\end{alertblock}
+\end{frame}
+
